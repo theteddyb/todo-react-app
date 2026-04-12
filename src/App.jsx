@@ -6,6 +6,7 @@ function App() {
   const [users, setUsers] = useState([])
   const [filterUserId, setFilterUserId] = useState('all')
   const [sortOrder, setSortOrder] = useState('asc')
+  const [visible, setVisible] = useState(5)
 
   //reading and displaying info from api
   useEffect(() => {
@@ -40,6 +41,11 @@ function App() {
       return b.title.localeCompare(a.title);
     }
   })
+
+  
+  const showMoreItems = () => {
+    setVisible(prevValue => prevValue + 5)
+  }
 
 
   //button for moving tasks
@@ -83,23 +89,25 @@ function App() {
       <div className ="flex-container">
       <div className="flex-item">
         <h1>uncomplete todos</h1>
-        {sortUncompletedTodos.map(todo => (
+        {sortUncompletedTodos.slice(0, visible).map(todo => (
           <div key={todo.id} className="todo-item">
             <span>{getUserName(todo.userId)}: </span>
             {todo.title}
             <button onClick={() => moveTodo(todo.id)}>Complete</button>
           </div>
         ))}
+        <button onClick={showMoreItems}>Load more</button>
       </div>
       <div className="flex-item">
         <h1>complete todos</h1>
-        {completedTodos.map(todo => (
+        {completedTodos.slice(0, visible).map(todo => (
           <div key={todo.id} className="todo-item">
             <span>{getUserName(todo.userId)}: </span>
             {todo.title}
             <button onClick={() => moveTodo(todo.id)}>Undo</button>
           </div>
         ))}
+        <button onClick={showMoreItems}>Load more</button>
       </div>
       </div>
     </div>
