@@ -5,6 +5,7 @@ function App() {
   const [todos, setTodos] = useState([])
   const [users, setUsers] = useState([])
   const [filterUserId, setFilterUserId] = useState('all')
+  const [sortOrder, setSortOrder] = useState('asc')
 
   //reading and displaying info from api
   useEffect(() => {
@@ -32,6 +33,14 @@ function App() {
   const completedTodos = filteredTodos.filter(todo => todo.completed)
   const uncompletedTodos = filteredTodos.filter(todo => !todo.completed)
 
+  const sortUncompletedTodos = [...uncompletedTodos].sort((a, b) => {
+    if (sortOrder === "asc") {
+      return a.title.localeCompare(b.title);
+    } else {
+      return b.title.localeCompare(a.title);
+    }
+  })
+
 
   //button for moving tasks
   const moveTodo = (id) => {
@@ -50,6 +59,8 @@ function App() {
     setFilterUserId(userId)
   }
 
+
+
   return (
     <div>
       <div>
@@ -62,12 +73,17 @@ function App() {
           </option>
           ))}          
         </select>
+        <label>Sort: </label>
+        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
       </div>
 
       <div className ="flex-container">
       <div className="flex-item">
         <h1>uncomplete todos</h1>
-        {uncompletedTodos.map(todo => (
+        {sortUncompletedTodos.map(todo => (
           <div key={todo.id} className="todo-item">
             <span>{getUserName(todo.userId)}: </span>
             {todo.title}
@@ -88,9 +104,6 @@ function App() {
       </div>
     </div>
   )
-
 }
-
-
 
 export default App
