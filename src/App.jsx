@@ -6,7 +6,9 @@ function App() {
   const [users, setUsers] = useState([])
   const [filterUserId, setFilterUserId] = useState('all')
   const [sortOrder, setSortOrder] = useState('asc')
-  const [visible, setVisible] = useState(5)
+
+  const [visibleCompleted, setVisibleCompleted] = useState(5)
+  const [visibleUncompleted, setVisibleUncompleted] = useState(5)
 
   //reading and displaying info from api
   useEffect(() => {
@@ -42,9 +44,13 @@ function App() {
     }
   })
 
-  
-  const showMoreItems = () => {
-    setVisible(prevValue => prevValue + 5)
+  //separating so they don't 'load more' simultaneously
+  const showMoreUncompleted = () => {
+    setVisibleUncompleted(prevValue => prevValue + 5)
+  }
+
+  const showMoreCompleted = () => {
+    setVisibleCompleted(prevValue => prevValue + 5)
   }
 
 
@@ -61,8 +67,11 @@ function App() {
     setTodos(updatedTodos)
   }
 
+  //reset after filter/reload
   const handleFilterChange = (userId) => {
     setFilterUserId(userId)
+    setVisibleUncompleted(5)
+    setVisibleCompleted(5)
   }
 
 
@@ -89,25 +98,25 @@ function App() {
       <div className ="flex-container">
       <div className="flex-item">
         <h1>uncomplete todos</h1>
-        {sortUncompletedTodos.slice(0, visible).map(todo => (
+        {sortUncompletedTodos.slice(0, visibleUncompleted).map(todo => (
           <div key={todo.id} className="todo-item">
             <span>{getUserName(todo.userId)}: </span>
             {todo.title}
             <button onClick={() => moveTodo(todo.id)}>Complete</button>
           </div>
         ))}
-        <button onClick={showMoreItems}>Load more</button>
+        <button onClick={showMoreUncompleted}>Load more</button>
       </div>
       <div className="flex-item">
         <h1>complete todos</h1>
-        {completedTodos.slice(0, visible).map(todo => (
+        {completedTodos.slice(0, visibleCompleted).map(todo => (
           <div key={todo.id} className="todo-item">
             <span>{getUserName(todo.userId)}: </span>
             {todo.title}
             <button onClick={() => moveTodo(todo.id)}>Undo</button>
           </div>
         ))}
-        <button onClick={showMoreItems}>Load more</button>
+        <button onClick={showMoreCompleted}>Load more</button>
       </div>
       </div>
     </div>
