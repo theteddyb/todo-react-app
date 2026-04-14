@@ -6,6 +6,7 @@ function App() {
   const [users, setUsers] = useState([])
   const [filterUserId, setFilterUserId] = useState('all')
   const [sortOrder, setSortOrder] = useState('asc')
+  const [sortDate, setSortDate] = useState('asc')
 
   const [visibleCompleted, setVisibleCompleted] = useState(5)
   const [visibleUncompleted, setVisibleUncompleted] = useState(5)
@@ -44,6 +45,18 @@ function App() {
     }
   })
 
+  const sortCompletedTodos = [...completedTodos].sort((a,b) => {
+    if (!a.completedAt || !b.completedAt) {
+      return 0
+    }
+
+    if (setSortDate === "asc"){
+      return a.completedAt - b.completedAt 
+    } else {
+      return b.completedAt - a.completedAt
+    }
+  })
+
   //separating so they don't 'load more' simultaneously
   const showMoreUncompleted = () => {
     setVisibleUncompleted(prevValue => prevValue + 5)
@@ -53,12 +66,22 @@ function App() {
     setVisibleCompleted(prevValue => prevValue + 5)
   }
 
+  const formatDate = (date) => {
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}.${month}.${year}`
+  }
 
   //button for moving tasks
   const moveTodo = (id) => {
     const updatedTodos = todos.map(todo => {
       if (todo.id === id) {
-        return { ...todo, completed: !todo.completed}
+        return { 
+          ...todo,
+          completed: !todo.completed,
+          completedAt: !todo.completed ? new Date() : null
+        }
       }
       else {
         return todo
@@ -93,6 +116,11 @@ function App() {
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
+        <label>Sort date: </label>
+        <select value={sortDate} onChange={(e) => setSortDate(e.target.value)}>
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
       </div>
 
       <div className ="flex-container">
@@ -109,10 +137,15 @@ function App() {
       </div>
       <div className="flex-item">
         <h1>complete todos</h1>
-        {completedTodos.slice(0, visibleCompleted).map(todo => (
+        {sortCompletedTodos.slice(0, visibleCompleted).map(todo => (
           <div key={todo.id} className="todo-item">
             <span>{getUserName(todo.userId)}: </span>
             {todo.title}
+
+            {todo.completedAt && (
+              <div>Completed on: {formatDate(todo.completedAt)}</div>
+            )}
+
             <button onClick={() => moveTodo(todo.id)}>Undo</button>
           </div>
         ))}
