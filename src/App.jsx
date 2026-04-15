@@ -101,7 +101,9 @@ function App() {
 
   return (
     <div>
-      <div>
+      <div className="dropdown">
+
+        <div>
         <label>Filter by:</label>
         <select value={filterUserId} onChange={(e) => handleFilterChange(e.target.value)}>
           <option value="all">All</option>
@@ -111,16 +113,23 @@ function App() {
           </option>
           ))}          
         </select>
+        </div>
+
+        <div>
         <label>Sort: </label>
         <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
+        </div>
+
+        <div>
         <label>Sort date: </label>
         <select value={sortDate} onChange={(e) => setSortDate(e.target.value)}>
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
+        </div>
       </div>
 
       <div className ="flex-container">
