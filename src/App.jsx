@@ -1,5 +1,7 @@
 import './App.css';
-import {useState, useEffect} from 'react'
+import {useState, useEffect, useRef} from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons'
 
 function App() {
   const [todos, setTodos] = useState([])
@@ -10,6 +12,14 @@ function App() {
 
   const [visibleCompleted, setVisibleCompleted] = useState(5)
   const [visibleUncompleted, setVisibleUncompleted] = useState(5)
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [isSortOpen, setIsSortOpen] = useState(false)
+  const [isDateOpen, setIsDateOpen] = useState(false)
+
+  const filterRef = useRef(null)
+  const sortRef = useRef(null)
+  const dateRef = useRef(null)
 
   //reading and displaying info from api
   useEffect(() => {
@@ -22,16 +32,39 @@ function App() {
     .then(data => setUsers(data))
   }, [])
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setIsFilterOpen(false)
+      }
+      if (sortRef.current && !sortRef.current.contains(event.target)) {
+        setIsSortOpen(false)
+      }
+      if (dateRef.current && !dateRef.current.contains(event.target)) {
+        setIsDateOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+    const filterOptions = [
+    {value: 'all', label: 'all users'},
+    ...users.map(user => ({value: user.id.toString(), label: user.name}))
+  ]
+
+
+
   //combine filters
   const filteredTodos = filterUserId === 'all'
     ? todos
     : todos.filter(todo => todo.userId.toString() === filterUserId)
   
-  //using for fact-checking might remove later
-  const getUserName = (userId) => {
-    const user = users.find(user => user.id === userId)
-    return user ? user.name : '${userId}'
-  }
+  // //using for fact-checking might remove later
+  // const getUserName = (userId) => {
+  //   const user = users.find(user => user.id === userId)
+  //   return user ? user.name : '${userId}'
+  // }
 
   //creating consts to filter through the todos
   const completedTodos = filteredTodos.filter(todo => todo.completed)
@@ -103,62 +136,151 @@ function App() {
     <div>
       <div className="dropdown">
 
-        <div>
-        <label>Filter by:</label>
-        <select value={filterUserId} onChange={(e) => handleFilterChange(e.target.value)}>
-          <option value="all">All</option>
-          {users.map(user => (
-            <option key={user.id} value={user.id}>
-            {user.name}
-          </option>
-          ))}          
-        </select>
-        </div>
+        <div className="dropdowns-container">
+          <div className="dropdown" ref={filterRef}>
+            <label className="dropdown-label">Filter by:</label>
+            <div 
+              className={`dropdown-content ${isFilterOpen ? "content-open" : ''}`}
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+            >
+            <span className="toggle-icon"> 
+              <FontAwesomeIcon icon={isFilterOpen ? faChevronUp : faChevronDown} />
+            </span>
 
-        <div>
-        <label>Sort: </label>
-        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
-        </select>
-        </div>
+            <div className="selected-value">
+              {filterOptions.find(option => option.value === filterUserId)?.label || 'All'}
+            </div>
 
-        <div>
-        <label>Sort date: </label>
-        <select value={sortDate} onChange={(e) => setSortDate(e.target.value)}>
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
-        </select>
-        </div>
+            {isFilterOpen && (
+              <div className="dropdown-options">
+                <div className={`dropdown-option ${filterUserId === 'all' ? 'selected' : ''}`}
+                onClick={() => {
+                  handleFilterChange('all')
+                  setIsFilterOpen(false)
+              }}
+              >
+                All Users 
+                </div>
+                {users.map(user => (
+                  <div key={user.id} className={`dropdown-option ${filterUserId === user.id.toString() ? 'selected' : ''}`}
+                  onClick={() => {
+                    handleFilterChange(user.id.toString())
+                    setIsFilterOpen(false)
+                  }}>
+                    {user.name}
+                  </div>
+                ))}
+                </div>
+            )}
+
+            </div>
+
+          </div>
+
+        
+
+
+            <div className="dropdown" ref={sortRef}>
+              <label className="dropdown-label">Sort:</label>
+              <div className={`dropdown-content ${isSortOpen ? "content-open" : ''}`}
+              onClick={() => setIsSortOpen(!isSortOpen)}>
+                Title
+                <span className="toggle-icon">
+                  <FontAwesomeIcon icon={isSortOpen ? faChevronUp : faChevronDown} />
+                </span>
+                <div className="selected-value">
+                  {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+                </div>
+                {isSortOpen && (
+                  <div className="dropdown-options">
+                    <div className={`dropdown-option ${sortOrder === 'asc'? 'selected': ''}`}
+                    onClick={() => {
+                      setSortOrder('asc')
+                      setIsSortOpen(false)
+                    }}>
+                      Ascending
+                    </div>
+                    <div className={`dropdown-option ${sortOrder === 'desc' ? 'selected' : ''}`}
+                    onClick={() => {
+                      setSortOrder('desc')
+                      setIsSortOpen(false)
+                    }}>
+                      Descending
+                    </div>
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+          <div className="dropdown" ref={dateRef}>
+            <label className="dropdown-label">Date:</label>
+            <div className={`dropdown-content ${isDateOpen ? "content-open" : ''}`}
+            onClick={() => setIsDateOpen(!isDateOpen)}>
+              <span className="toggle-icon">
+                <FontAwesomeIcon icon={isDateOpen ? faChevronUp : faChevronDown} />
+              </span>
+
+              {isDateOpen && (
+                <div className="dropdown-options">
+                  <div className={`dropdown-option ${sortDate === 'asc' ? 'selected' : ''}`}
+                  onClick={() => {
+                    setSortDate('asc')
+                    setIsDateOpen(false)
+                  }}>
+                    Ascending
+                  </div>
+                  <div className={`dropdown-option ${sortDate === 'desc' ? 'selected' : ''}`}
+                  onClick={() => {
+                    setSortDate('desc')
+                    setIsDateOpen(false)
+                  }}>
+                    Descending
+                  </div>
+                </div>
+              )}
+            </div>
+
+          </div>
+
+        </div>  
+
+
       </div>
 
       <div className ="flex-container">
       <div className="flex-item">
-        <h1>uncomplete todos</h1>
+        <h1>Pending: </h1>
         {sortUncompletedTodos.slice(0, visibleUncompleted).map(todo => (
           <div key={todo.id} className="todo-item">
-            <span>{getUserName(todo.userId)}: </span>
+            {/* <span>{getUserName(todo.userId)}: </span> */}
             {todo.title}
-            <button onClick={() => moveTodo(todo.id)}>Complete</button>
+            <button className="complete-btn" onClick={() => moveTodo(todo.id)}>Complete</button>
           </div>
         ))}
-        <button onClick={showMoreUncompleted}>Load more</button>
+        {visibleUncompleted < sortUncompletedTodos.length && (
+          <button className="load-more-btn" onClick={showMoreUncompleted}>Load more</button>
+        )}
+        
       </div>
       <div className="flex-item">
-        <h1>complete todos</h1>
+        <h1>Completed: </h1>
         {sortCompletedTodos.slice(0, visibleCompleted).map(todo => (
           <div key={todo.id} className="todo-item">
-            <span>{getUserName(todo.userId)}: </span>
+            {/* <span>{getUserName(todo.userId)}: </span> */}
             {todo.title}
 
             {todo.completedAt && (
               <div>Completed on: {formatDate(todo.completedAt)}</div>
             )}
 
-            <button onClick={() => moveTodo(todo.id)}>Undo</button>
+            <button className="undo-btn" onClick={() => moveTodo(todo.id)}>Undo</button>
           </div>
         ))}
-        <button onClick={showMoreCompleted}>Load more</button>
+        {visibleCompleted < sortCompletedTodos.length && (
+          <button className="load-more-btn" onClick={showMoreCompleted}>Load more</button>
+        )}
+        
       </div>
       </div>
     </div>
