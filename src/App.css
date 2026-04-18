@@ -1,12 +1,12 @@
 body {
     font-family: "Times New Roman", Times, serif;
-    background-color: white;
+    background-color: #a2a6f2cb;
     margin: 0;
     padding: 20px;
 }
 
 .dropdowns-container {
-    background: white;
+
     border-radius: 12px;
     margin-bottom: 24px;
     display: flex;
@@ -43,7 +43,7 @@ body {
     justify-content: space-between;
     padding: 10px 16px;
     background-color: white;
-    border: 1px solid black;
+    border: 1px solid #0a3323;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -54,7 +54,7 @@ body {
 }
 
 .dropdown-content:hover {
-    border-color: #9ca3af;
+    border-color: #a2a6f2;
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
 }
 
@@ -68,7 +68,7 @@ body {
 .selected-value {
     flex: 1;
     text-align: left;
-    color: #2d3748;
+    color: #706760;
     font-size: 0.9rem;
 }
 
@@ -118,17 +118,18 @@ body {
 
 .flex-container {
     display: flex;
-    background-color: #ffffff;
+    justify-content: center;
     padding: 10px;
     gap: 20px;
 }
 
 .flex-item {
-    background: gray;
+    width: calc(70% / 2);
+    background: #e2e8f0;
     border-radius: 20px;
 
     padding: 24px;
-    box-shadow: 0 10px 25px rgba(255,255,255,0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.221);
     max-height: 500px;
     max-width: 700px;
     overflow-y: auto;
@@ -150,51 +151,74 @@ body {
     padding: 10px;
     background-color: rgba(255,255,255,0.2);
     border-radius: 5px;
-    text-align: left;
+    display: flex;
     justify-content: space-between;
 }
 
+/* .todo-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+} */
+
+/* //w3schools sample */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px rgba(182, 185, 242, 0.767);
+    border-radius: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(182, 185, 242, 0.751);
+    border-radius: 10px;
+}
 
 button {
-    margin-left: 10px;
     padding: 5px 10px;
+    border-radius: 10px;
+    border-color: rgba(128, 128, 128, 0.405);
     transition-duration: 0.4s;
 }
 
-.button:hover {
-    background-color: blue;
-    color: white;
-}
 
 .complete-btn {
-    margin-left: auto;
+    background-color: #f2ad2e;
+    color: white;
     padding: 5px 10px;
     transition-duration: 0.4s;
 }
 
 .complete-btn:hover {
-    background-color: green;
+    background-color: #eeb448;
     color: white;
+    cursor: pointer;
 }
 
 .undo-btn {
-    margin-left: auto;
+    background-color: #f28627;
+    color: white;
     padding: 5px 10px;
     transition-duration: 0.4s;
 }
 
 .undo-btn:hover {
-    background-color: yellow;
+    background-color: #a25b1d;
     color: white;
+    cursor: pointer;
 }
 
 .load-more-btn {
-    position-anchor: center;
+    display: block;
+    margin: 20px auto;
     padding: 5px 10px;
     transition-duration: 0.4s;
 }
 
 .load-more-btn:hover {
+    cursor: pointer;
     background-color: grey;
     color: white;
 }

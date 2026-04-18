@@ -25,7 +25,21 @@ function App() {
   useEffect(() => {
     fetch('https://jsonplaceholder.typicode.com/todos')
     .then(response => response.json())
-    .then(data => setTodos(data))
+    .then(data => {
+      //adding dates to all elements so they can be sorted by date
+      const todosWithDates = data.map(todo => {
+      if(todo.completed) {
+        return {
+          ...todo,
+          completedAt:new Date('2026-01-01').toISOString()
+        }
+      }
+      return todo
+    }
+    )
+    setTodos(todosWithDates)
+    })
+    
 
     fetch('https://jsonplaceholder.typicode.com/users')
     .then(response => response.json())
@@ -49,7 +63,7 @@ function App() {
   }, [])
 
     const filterOptions = [
-    {value: 'all', label: 'all users'},
+    {value: 'all', label: 'All Users'},
     ...users.map(user => ({value: user.id.toString(), label: user.name}))
   ]
 
@@ -77,16 +91,22 @@ function App() {
       return b.title.localeCompare(a.title);
     }
   })
+  
 
   const sortCompletedTodos = [...completedTodos].sort((a,b) => {
     if (!a.completedAt || !b.completedAt) {
       return 0
     }
+    if (!a.completedAt) return 1
+    if (!b.completedAt) return -1
 
-    if (setSortDate === "asc"){
-      return a.completedAt - b.completedAt 
+    const dateA = new Date(a.completedAt).getTime()
+    const dateB = new Date(b.completedAt).getTime()
+
+    if (sortDate === "asc"){
+      return dateB - dateA
     } else {
-      return b.completedAt - a.completedAt
+      return dateA- dateB
     }
   })
 
@@ -99,7 +119,10 @@ function App() {
     setVisibleCompleted(prevValue => prevValue + 5)
   }
 
-  const formatDate = (date) => {
+  //date formatting to string for comparison
+  const formatDate = (dateInput) => {
+    if (!dateInput) return ''
+    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
     const day = String(date.getDate()).padStart(2, '0')
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const year = date.getFullYear()
@@ -110,15 +133,21 @@ function App() {
   const moveTodo = (id) => {
     const updatedTodos = todos.map(todo => {
       if (todo.id === id) {
-        return { 
-          ...todo,
-          completed: !todo.completed,
-          completedAt: !todo.completed ? new Date() : null
+        const newTodo = {...todo}
+
+        newTodo.completed = !newTodo.completed
+
+        if (newTodo.completed === true) {
+          newTodo.completedAt = new Date().toISOString()
+          console.log('Date added:', newTodo.completedAt)
         }
+        else {
+          delete newTodo.completedAt
+          console.log('Date removed from todo:', id)
+        }
+        return newTodo
       }
-      else {
-        return todo
-      }
+      return todo
     })
     setTodos(updatedTodos)
   }
@@ -143,6 +172,7 @@ function App() {
               className={`dropdown-content ${isFilterOpen ? "content-open" : ''}`}
               onClick={() => setIsFilterOpen(!isFilterOpen)}
             >
+              User
             <span className="toggle-icon"> 
               <FontAwesomeIcon icon={isFilterOpen ? faChevronUp : faChevronDown} />
             </span>
@@ -159,7 +189,7 @@ function App() {
                   setIsFilterOpen(false)
               }}
               >
-                All Users 
+                All
                 </div>
                 {users.map(user => (
                   <div key={user.id} className={`dropdown-option ${filterUserId === user.id.toString() ? 'selected' : ''}`}
@@ -214,12 +244,16 @@ function App() {
             </div>
 
           <div className="dropdown" ref={dateRef}>
-            <label className="dropdown-label">Date:</label>
+            <label className="dropdown-label">Sort:</label>
             <div className={`dropdown-content ${isDateOpen ? "content-open" : ''}`}
             onClick={() => setIsDateOpen(!isDateOpen)}>
+              Date
               <span className="toggle-icon">
                 <FontAwesomeIcon icon={isDateOpen ? faChevronUp : faChevronDown} />
               </span>
+              <div className="selected-value">
+                {sortDate === 'asc' ? 'Ascending' : 'Descending'}
+              </div>
 
               {isDateOpen && (
                 <div className="dropdown-options">
@@ -248,6 +282,7 @@ function App() {
 
       </div>
 
+
       <div className ="flex-container">
       <div className="flex-item">
         <h1>Pending: </h1>
@@ -269,13 +304,15 @@ function App() {
           <div key={todo.id} className="todo-item">
             {/* <span>{getUserName(todo.userId)}: </span> */}
             {todo.title}
-
+            
             {todo.completedAt && (
               <div>Completed on: {formatDate(todo.completedAt)}</div>
             )}
 
             <button className="undo-btn" onClick={() => moveTodo(todo.id)}>Undo</button>
+            
           </div>
+
         ))}
         {visibleCompleted < sortCompletedTodos.length && (
           <button className="load-more-btn" onClick={showMoreCompleted}>Load more</button>
